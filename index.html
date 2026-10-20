@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phantom, redesigned — True-Cost Swap &amp; Human Activity · Superteam Earn</title>
+<style>
+  :root{
+    --bg:#0B0B10; --panel:#14141C; --panel2:#1A1A24; --line:#262633;
+    --ink:#EDEDF2; --ink2:#9B9BAE; --ink3:#6E6E82;
+    --acc:#AB9FF2; --acc-ink:#17141F; --green:#3ECF8E; --amber:#F5B84C; --red:#FF8585;
+    --scr:#101016; --scr2:#1B1B25; --scr3:#23232F;
+    --r-s:8px; --r-m:12px; --r-l:16px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1180px;margin:0 auto;padding:56px 28px 96px}
+  .mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+  .tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:4px 10px;border-radius:999px}
+  .tag-b{color:var(--red);border:1px solid #4a2b2b;background:#221416}
+  .tag-a{color:var(--green);border:1px solid #1f4232;background:#0f1f18}
+  .tag-n{color:var(--acc);border:1px solid #35304f;background:#181426}
+  h1{font-size:44px;line-height:1.12;letter-spacing:-.02em;font-weight:800;max-width:20ch}
+  h2{font-size:30px;letter-spacing:-.015em;font-weight:750;margin-bottom:10px}
+  h3{font-size:17px;font-weight:700;margin-bottom:6px}
+  p.lede{font-size:18px;color:var(--ink2);max-width:62ch;margin-top:16px}
+  .kicker{color:var(--acc);font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;margin-bottom:14px}
+  section{margin-top:88px}
+  .sec-head{max-width:70ch}
+  .sec-head p{color:var(--ink2);font-size:16px}
+  .problems{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:28px}
+  .problem{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-l);padding:20px}
+  .problem .num{font-size:12px;font-weight:800;color:var(--red);letter-spacing:.1em}
+  .problem p{color:var(--ink2);font-size:14px;margin-top:6px}
+  .problem h3{font-size:15px}
+  .boards{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:36px;align-items:start}
+  .board{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:26px}
+  .board .cap{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+  .board .cap span.lbl{font-weight:650;font-size:15px}
+  .board .note{color:var(--ink2);font-size:13.5px;margin-top:16px}
+  .board .note b{color:var(--ink)}
+  /* ---------- phone ---------- */
+  .phone{width:330px;margin:0 auto;background:#000;border-radius:46px;padding:10px;box-shadow:0 24px 60px rgba(0,0,0,.55)}
+  .scr{background:var(--scr);border-radius:38px;overflow:hidden;padding:20px 18px 22px;min-height:600px;display:flex;flex-direction:column;gap:14px}
+  .statusbar{display:flex;justify-content:space-between;font-size:11px;color:var(--ink2);padding:0 6px}
+  .apphead{display:flex;align-items:center;gap:10px}
+  .avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#AB9FF2,#4F46E5)}
+  .apphead .wname{font-weight:700;font-size:14px}
+  .apphead .sp{flex:1}
+  .ic{width:30px;height:30px;border-radius:50%;background:var(--scr2);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--ink2)}
+  .bal-big{font-size:32px;font-weight:800;letter-spacing:-.01em}
+  .bal-sub{font-size:12.5px;color:var(--green)}
+  .bal-sub.grey{color:var(--ink3)}
+  .actions{display:flex;gap:10px}
+  .actbtn{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11px;color:var(--ink2)}
+  .actbtn .c{width:46px;height:46px;border-radius:50%;background:var(--scr2);display:flex;align-items:center;justify-content:center;font-size:17px;color:var(--ink)}
+  .actbtn.on .c{background:var(--acc);color:var(--acc-ink)}
+  .card{background:var(--scr2);border-radius:var(--r-l);padding:16px}
+  .card .lab{font-size:11px;color:var(--ink3);letter-spacing:.06em;text-transform:uppercase;font-weight:700}
+  .amtrow{display:flex;align-items:center;gap:10px;margin-top:6px}
+  .amt{font-size:26px;font-weight:750;flex:1}
+  .amt small{font-size:13px;color:var(--ink2);font-weight:500}
+  .tok{display:flex;align-items:center;gap:8px;background:var(--scr3);padding:7px 10px 7px 7px;border-radius:999px;font-weight:700;font-size:14px}
+  .ticon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex:none}
+  .ti-sol{background:linear-gradient(135deg,#9945FF,#14F195);color:#0B0B10}
+  .ti-usdc{background:#2775CA}
+  .ti-jup{background:#1d3b2a;color:#C9F73A}
+  .ti-bonk{background:#E8833A}
+  .ti-fake{background:#3a3a46;color:#c9c9d6}
+  .usd{font-size:12px;color:var(--ink3);text-align:right}
+  .flip{align-self:center;width:34px;height:34px;border-radius:50%;background:var(--scr3);display:flex;align-items:center;justify-content:center;color:var(--ink2);margin:-6px auto}
+  .fineprint{font-size:10px;color:var(--ink3);text-align:center}
+  .rate-line{display:flex;justify-content:space-between;font-size:12px;color:var(--ink2)}
+  .btn{height:50px;border-radius:var(--r-m);background:var(--acc);color:var(--acc-ink);font-weight:750;font-size:15px;display:flex;align-items:center;justify-content:center;border:none;width:100%;cursor:pointer}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+  .costcard{background:var(--scr2);border-radius:var(--r-l);padding:16px;border-left:3px solid var(--amber)}
+  .costcard .ttl{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--amber)}
+  .crow{display:flex;justify-content:space-between;align-items:baseline;font-size:13.5px;margin-top:10px}
+  .crow .k{color:var(--ink2)}
+  .crow .v{font-weight:650}
+  .crow .v.neg{color:var(--amber)}
+  .why{font-size:12px;color:var(--ink3);margin-top:2px}
+  .seg{display:flex;background:var(--scr3);border-radius:10px;padding:3px;gap:3px;margin-top:8px}
+  .seg button{flex:1;background:transparent;border:none;color:var(--ink2);font-size:12.5px;font-weight:650;padding:7px 0;border-radius:7px;cursor:pointer}
+  .seg button.on{background:#3A3A52;color:#fff}
+  .divider{height:1px;background:var(--line);margin:12px 0 2px}
+  .chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px}
+  .chip.ok{background:#0f2a1e;color:var(--green)}
+  .chip.warn{background:#2b2110;color:var(--amber)}
+  .chip.dim{background:var(--scr3);color:var(--ink2)}
+  .searchbar{background:var(--scr2);border-radius:var(--r-m);padding:12px 14px;color:var(--ink3);font-size:14px;display:flex;gap:8px;align-items:center}
+  .tokrow{display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid #1d1d28}
+  .tokrow:last-child{border-bottom:none}
+  .tokrow .nm{font-weight:650;font-size:14.5px}
+  .tokrow .sub{font-size:12px;color:var(--ink3)}
+  .tokrow .rt{margin-left:auto;text-align:right}
+  .tokrow .rt .p{font-weight:650;font-size:14px}
+  .tokrow .rt .c{font-size:12px}
+  .up{color:var(--green)} .down{color:var(--red)}
+  .hiddenrow{background:#221a10;border:1px dashed #4a3a1c;border-radius:var(--r-m);padding:12px;font-size:13px;color:var(--amber);display:flex;justify-content:space-between;align-items:center}
+  .daygroup{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-top:6px}
+  .act-item{display:flex;gap:12px;padding:13px 0;border-bottom:1px solid #1d1d28}
+  .act-item:last-child{border-bottom:none}
+  .aic{width:38px;height:38px;border-radius:50%;background:var(--scr2);display:flex;align-items:center;justify-content:center;font-size:15px;flex:none}
+  .act-item .tt{font-size:14px;font-weight:600;line-height:1.35}
+  .act-item .ss{font-size:12px;color:var(--ink3)}
+  .act-item .rt{margin-left:auto;text-align:right;flex:none}
+  .act-item .rt .a{font-weight:650;font-size:13.5px}
+  .failcard{background:#221a10;border:1px solid #4a3a1c;border-radius:var(--r-l);padding:16px}
+  .failcard h4{color:var(--amber);font-size:14.5px;margin-bottom:4px}
+  .failcard p{font-size:13px;color:#d8c9a8}
+  /* ---------- desktop ---------- */
+  .browser{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--scr)}
+  .chrome{height:38px;background:var(--panel2);display:flex;align-items:center;gap:10px;padding:0 14px;border-bottom:1px solid var(--line)}
+  .dot{width:11px;height:11px;border-radius:50%}
+  .urlbar{flex:1;max-width:420px;background:var(--scr2);border-radius:7px;font-size:12px;color:var(--ink2);padding:5px 12px}
+  .dapp{display:flex;min-height:480px}
+  .side{width:170px;flex:none;border-right:1px solid var(--line);padding:18px 12px;display:flex;flex-direction:column;gap:4px;background:#0D0D13}
+  .side .logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px;padding:2px 8px 16px}
+  .ghostlogo{width:24px;height:24px;border-radius:7px;background:linear-gradient(135deg,#AB9FF2,#4F46E5)}
+  .navi{padding:9px 10px;border-radius:9px;font-size:13.5px;color:var(--ink2);display:flex;gap:9px;align-items:center}
+  .navi.on{background:var(--scr2);color:var(--ink);font-weight:650}
+  .main{flex:1;padding:26px;display:flex;flex-direction:column;gap:16px;min-width:0}
+  .main.center{align-items:center}
+  .dswap{width:400px;max-width:100%}
+  .twocol{display:grid;grid-template-columns:400px 1fr;gap:20px;align-items:start}
+  table.raw{width:100%;border-collapse:collapse;font-size:13px}
+  table.raw th{text-align:left;color:var(--ink3);font-size:11px;text-transform:uppercase;letter-spacing:.07em;padding:8px 10px;border-bottom:1px solid var(--line)}
+  table.raw td{padding:11px 10px;border-bottom:1px solid #1d1d28;color:var(--ink2)}
+  table.raw td:first-child{color:var(--ink2)}
+  .routecmp{font-size:13px}
+  .routecmp .crow{margin-top:8px}
+  /* ---------- prose ---------- */
+  .decisions{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:30px}
+  .decision{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-l);padding:20px}
+  .decision p{color:var(--ink2);font-size:14px;margin-top:5px}
+  .tokens{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+  .swatch{border:1px solid var(--line);border-radius:var(--r-m);padding:12px 14px;background:var(--panel);font-size:12.5px}
+  .swatch i{display:block;width:26px;height:26px;border-radius:8px;margin-bottom:8px}
+  .writeup{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:36px;max-width:78ch}
+  .writeup p{color:var(--ink2);margin-top:12px;font-size:15.5px}
+  .writeup p b,.writeup li b{color:var(--ink)}
+  .writeup ul{margin:10px 0 0 20px;color:var(--ink2);font-size:15.5px}
+  .writeup li{margin-top:6px}
+  .foot{margin-top:80px;border-top:1px solid var(--line);padding-top:24px;color:var(--ink3);font-size:13px;max-width:70ch}
+  .principles{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
+  .principle{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:9px 16px;font-size:13.5px;color:var(--ink2)}
+  .principle b{color:var(--ink)}
+  @media (max-width:900px){.boards,.problems,.decisions{grid-template-columns:1fr}.twocol{grid-template-columns:1fr}.side{display:none}h1{font-size:34px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="kicker">Superteam Earn · Open Design Bounty — Superteam India</div>
+  <h1>Phantom, redesigned: know the true cost before you sign.</h1>
+  <p class="lede">A redesign of two Phantom interactions that quietly cost users money: the <b style="color:var(--ink)">swap flow</b>, where price impact and slippage hide in fine print, and the <b style="color:var(--ink)">activity feed</b>, where your own money history is written in raw transaction hashes. The screens below are the deliverable — before/after, mobile and desktop — followed by an interactive prototype of the redesigned swap and the full write-up.</p>
+  <div class="principles">
+    <span class="principle"><b>Principle 1 —</b> State the cost before the signature, not after.</span>
+    <span class="principle"><b>Principle 2 —</b> Verified by default; lookalikes never look identical.</span>
+    <span class="principle"><b>Principle 3 —</b> Activity speaks human, details on demand.</span>
+  </div>
+
+  <!-- ================= FEATURE 1 ================= -->
+  <section id="feature1">
+    <div class="sec-head">
+      <div class="kicker">Feature 1 of 2 · Swap</div>
+      <h2>The swap that tells you what it costs</h2>
+      <p>In today's Phantom, a swap review shows two numbers and a button. Everything that determines whether the trade is good or bad — price impact, minimum received, route quality, whether the token is even real — is either invisible or set in 10px grey type. Beginners sign blind; experienced users leave the app to check.</p>
+    </div>
+    <div class="problems">
+      <div class="problem"><div class="num">PROBLEM 1</div><h3>Price impact is nowhere</h3><p>The review screen never shows price impact. On a thin pool, a user can lose several percent to impact and only discover it by comparing balances afterwards.</p></div>
+      <div class="problem"><div class="num">PROBLEM 2</div><h3>Slippage is fine print</h3><p>Slippage tolerance — the setting that decides how bad a fill you will accept — sits in tiny grey text under the button. “Minimum received” is never stated at all.</p></div>
+      <div class="problem"><div class="num">PROBLEM 3</div><h3>Fake tokens look real</h3><p>In the token picker, a scam token with a copied name and symbol renders identically to the genuine one. The only differentiator is a truncated mint address in 9px type.</p></div>
+    </div>
+
+    <div class="boards">
+      <!-- MOBILE BEFORE -->
+      <div class="board">
+        <div class="cap"><span class="tag tag-b">Before</span><span class="lbl">Swap review — mobile, today</span></div>
+        <div class="phone"><div class="scr" id="scr-m-swap-before">
+          <div class="statusbar"><span>9:41</span><span>5G ▰▰▰</span></div>
+          <div class="apphead"><div class="avatar"></div><div><div class="wname">Wallet 1</div><div style="font-size:11px;color:var(--ink3)">7xKZ…eR9p</div></div><div class="sp"></div><div class="ic">⌕</div><div class="ic">▣</div></div>
+          <div><div class="bal-big">$1,284.06</div><div class="bal-sub">+$32.18 (2.57%) today</div></div>
+          <div class="actions">
+            <div class="actbtn"><div class="c">↓</div>Receive</div>
+            <div class="actbtn"><div class="c">$</div>Buy</div>
+            <div class="actbtn on"><div class="c">⇄</div>Swap</div>
+            <div class="actbtn"><div class="c">↑</div>Send</div>
+          </div>
+          <div class="card">
+            <div class="lab">You send</div>
+            <div class="amtrow"><div class="amt">2.5 <small>SOL</small></div><div class="tok"><span class="ticon ti-sol">SOL</span>SOL ▾</div></div>
+            <div class="usd">≈ $456.00</div>
+          </div>
+          <div class="flip">↓</div>
+          <div class="card">
+            <div class="lab">You receive</div>
+            <div class="amtrow"><div class="amt">≈ 453.4 <small>USDC</small></div><div class="tok"><span class="ticon ti-usdc">USDC</span>USDC ▾</div></div>
+            <div class="usd">Rate: 1 SOL ≈ 181.4 USDC</div>
+          </div>
+          <button class="btn">Review Swap</button>
+          <div class="fineprint">Slippage tolerance 0.5% · Network fee ≈ 0.000005 SOL</div>
+        </div></div>
+        <p class="note"><b>What’s missing:</b> no price impact, no minimum received, no route. The only cost information on the screen is the 10px line under the button.</p>
+      </div>
+
+      <!-- MOBILE AFTER -->
+      <div class="board">
+        <div class="cap"><span class="tag tag-a">After</span><span class="lbl">Swap review — mobile, redesigned</span></div>
+        <div class="phone"><div class="scr" id="scr-m-swap-after">
+          <div class="statusbar"><span>9:41</span><span>5G ▰▰▰</span></div>
+          <div class="apphead"><div class="avatar"></div><div><div class="wname">Wallet 1</div><div style="font-size:11px;color:var(--ink3)">7xKZ…eR9p</div></div><div class="sp"></div><div class="ic">⌕</div><div class="ic">▣</div></div>
+          <div class="card">
+            <div class="lab">You pay</div>
+            <div class="amtrow"><div class="amt">2.5 <small>SOL</small></div><div class="tok"><span class="ticon ti-sol">SOL</span>SOL ▾</div></div>
+            <div class="usd">≈ $456.00 · Balance 8.42 SOL</div>
+          </div>
+          <div class="flip">↓</div>
+          <div class="card">
+            <div class="lab">You receive</div>
+            <div class="amtrow"><div class="amt">453.42 <small>USDC</small></div><div class="tok"><span class="ticon ti-usdc">USDC</span>USDC ▾</div></div>
+            <div class="usd" style="text-align:left;color:var(--ink2)">Min. you’ll receive <b style="color:var(--ink)">451.15 USDC</b> — guaranteed or the swap cancels</div>
+          </div>
+          <div class="costcard">
+            <div class="ttl">True cost of this swap</div>
+            <div class="crow"><span class="k">Price impact</span><span class="v neg">−$2.58 · −0.57%</span></div>
+            <div class="why">Your trade is large for this pool, so the price moves against you as it fills.</div>
+            <div class="crow"><span class="k">Slippage tolerance</span><span class="v">0.5%</span></div>
+            <div class="seg"><button>0.1%</button><button class="on">0.5%</button><button>1.0%</button><button>Custom</button></div>
+            <div class="crow"><span class="k">Route</span><span class="v">Orca · best of 3 checked</span></div>
+            <div class="crow"><span class="k">Network fee</span><span class="v">≈ $0.01</span></div>
+            <div class="divider"></div>
+            <div class="crow"><span class="k" style="color:var(--ink);font-weight:700">Total cost</span><span class="v" style="font-size:15px">≈ $2.59</span></div>
+          </div>
+          <button class="btn">Swap 2.5 SOL</button>
+        </div></div>
+        <p class="note"><b>What changed:</b> the full cost — impact, slippage, route, fee — is one card, in plain words, <b>before</b> the signature. Minimum received is a promise, not a footnote.</p>
+      </div>
+    </div>
+
+    <div class="boards">
+      <!-- PICKER BEFORE -->
+      <div class="board">
+        <div class="cap"><span class="tag tag-b">Before</span><span class="lbl">Token picker — mobile, today</span></div>
+        <div class="phone"><div class="scr" id="scr-m-pick-before">
+          <div class="statusbar"><span>9:41</span><span>5G ▰▰▰</span></div>
+          <h3 style="font-size:16px">Select a token</h3>
+          <div class="searchbar">⌕ Search by name or address</div>
+          <div>
+            <div class="tokrow"><span class="ticon ti-sol" style="width:36px;height:36px">SOL</span><div><div class="nm">Solana</div><div class="sub">SOL</div></div><div class="rt"><div class="p">$182.40</div><div class="c up">+2.4%</div></div></div>
+            <div class="tokrow"><span class="ticon ti-usdc" style="width:36px;height:36px">USDC</span><div><div class="nm">USD Coin</div><div class="sub">USDC</div></div><div class="rt"><div class="p">$1.00</div><div class="c" style="color:var(--ink3)">0.0%</div></div></div>
+            <div class="tokrow"><span class="ticon ti-usdc" style="width:36px;height:36px">USDC</span><div><div class="nm">USD Coin</div><div class="sub">7xKZ…eR9p</div></div><div class="rt"><div class="p">$0.98</div><div class="c down">−1.9%</div></div></div>
+            <div class="tokrow"><span class="ticon ti-jup" style="width:36px;height:36px">JUP</span><div><div class="nm">Jupiter</div><div class="sub">JUP</div></div><div class="rt"><div class="p">$0.512</div><div class="c up">+5.1%</div></div></div>
+            <div class="tokrow"><span class="ticon ti-bonk" style="width:36px;height:36px">BONK</span><div><div class="nm">Bonk</div><div class="sub">BONK</div></div><div class="rt"><div class="p">$0.000021</div><div class="c down">−3.2%</div></div></div>
+          </div>
+          <p class="note" style="margin-top:auto"><b>Spot the fake:</b> rows 2 and 3 both claim to be USD Coin. Nothing on screen tells you row 3 is a lookalike with a copied name — only a truncated address in small type.</p>
+        </div></div>
+      </div>
+
+      <!-- PICKER AFTER -->
+      <div class="board">
+        <div class="cap"><span class="tag tag-a">After</span><span class="lbl">Token picker — mobile, redesigned</span></div>
+        <div class="phone"><div class="scr" id="scr-m-pick-after">
+          <div class="statusbar"><span>9:41</span><span>5G ▰▰▰</span></div>
+          <h3 style="font-size:16px">Select a token</h3>
+          <div class="searchbar">⌕ Search by name or address</div>
+          <div style="display:flex;gap:8px"><span class="chip ok">✓ Verified only</span><span class="chip dim">My tokens</span><span class="chip dim">Trending</span></div>
+          <div>
+            <div class="tokrow"><span class="ticon ti-sol" style="width:36px;height:36px">SOL</span><div><div class="nm">Solana <span class="chip ok" style="margin-left:2px">✓ Verified</span></div><div class="sub">SOL · $182.40</div></div><div class="rt"><div class="p">8.42</div><div class="c" style="color:var(--ink3)">$1,535.81</div></div></div>
+            <div class="tokrow"><span class="ticon ti-usdc" style="width:36px;height:36px">USDC</span><div><div class="nm">USD Coin <span class="chip ok" style="margin-left:2px">✓ Verified</span></div><div class="sub">by Circle · deep liquidity</div></div><div class="rt"><div class="p">212.08</div><div class="c" style="color:var(--ink3)">$212.08</div></div></div>
+            <div class="tokrow"><span class="ticon ti-jup" style="width:36px;height:36px">JUP</span><div><div class="nm">Jupiter <span class="chip ok" style="margin-left:2px">✓ Verified</span></div><div class="sub">JUP · $0.512</div></div><div class="rt"><div class="p">0</div><div class="c up">+5.1%</div></div></div>
+            <div class="tokrow"><span class="ticon ti-bonk" style="width:36px;height:36px">BONK</span><div><div class="nm">Bonk <span class="chip ok" style="margin-left:2px">✓ Verified</span></div><div class="sub">BONK · $0.000021</div></div><div class="rt"><div class="p">0</div><div class="c down">−3.2%</div></div></div>
+          </div>
+          <div class="hiddenrow"><span>⚠ 1 unverified lookalike hidden — same name “USD Coin”, different mint</span><span style="font-weight:700;white-space:nowrap">Show</span></div>
+          <p class="note" style="margin-top:auto">Verified status comes from the Solana token registry. Unverified tokens are never deleted — they’re demoted, labelled, and one tap away for experts who actually want them.</p>
+        </div></div>
+      </div>
+    </div>
+
+    <!-- DESKTOP PAIR · FEATURE 1 -->
+    <div class="boards" style="grid-template-columns:1fr">
+      <div class="board">
+        <div class="cap"><span class="tag tag-b">Before</span><span class="lbl">Swap — desktop web app, today</span></div>
+        <div class="browser" id="scr-d-swap-before">
+          <div class="chrome"><span class="dot" style="background:#FF5F57"></span><span class="dot" style="background:#FEBC2E"></span><span class="dot" style="background:#28C840"></span><div class="urlbar">phantom.app</div></div>
+          <div class="dapp">
+            <div class="side"><div class="logo"><span class="ghostlogo"></span>Phantom</div>
+              <div class="navi">⌂ Home</div><div class="navi on">⇄ Swap</div><div class="navi">↺ Activity</div><div class="navi">⚙ Settings</div>
+            </div>
+            <div class="main center">
+              <div class="dswap" style="display:flex;flex-direction:column;gap:12px">
+                <div class="card"><div class="lab">You send</div>
+                  <div class="amtrow"><div class="amt">2.5 <small>SOL</small></div><div class="tok"><span class="ticon ti-sol">SOL</span>SOL ▾</div></div>
+                  <div class="usd">≈ $456.00</div></div>
+                <div class="flip">↓</div>
+                <div class="card"><div class="lab">You receive</div>
+                  <div class="amtrow"><div class="amt">≈ 453.4 <small>USDC</small></div><div class="tok"><span class="ticon ti-usdc">USDC</span>USDC ▾</div></div>
+                  <div class="usd">Rate: 1 SOL ≈ 181.4 USDC</div></div>
+                <button class="btn">Review Swap</button>
+                <div class="fineprint">Slippage tolerance 0.5% · Network fee ≈ 0.000005 SOL</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="note">On desktop, the narrow mobile widget is centred in a wide window — the extra space shows nothing. The cost information is exactly as hidden as on mobile.</p>
+      </div>
+
+      <div class="board">
+        <div class="cap"><span class="tag tag-a">After</span><span class="lbl">Swap — desktop web app, redesigned</span></div>
+        <div class="browser" id="scr-d-swap-after">
+          <div class="chrome"><span class="dot" style="background:#FF5F57"></span><span class="dot" style="background:#FEBC2E"></span><span class="dot" style="background:#28C840"></span><div class="urlbar">phantom.app</div></div>
+          <div class="dapp">
+            <div class="side"><div class="logo"><span class="ghostlogo"></span>Phantom</div>
+              <div class="navi">⌂ Home</div><div class="navi on">⇄ Swap</div><div class="navi">↺ Activity</div><div class="navi">⚙ Settings</div>
+            </div>
+            <div class="main">
+              <div class="twocol">
+                <div style="display:flex;flex-direction:column;gap:12px">
+                  <div class="card"><div class="lab">You pay</div>
+                    <div class="amtrow"><div class="amt">2.5 <small>SOL</small></div><div class="tok"><span class="ticon ti-sol">SOL</span>SOL ▾</div></div>
+                    <div class="usd">≈ $456.00 · Balance 8.42 SOL</div></div>
+                  <div class="flip">↓</div>
+                  <div class="card"><div class="lab">You receive</div>
+                    <div class="amtrow"><div class="amt">453.42 <small>USDC</small></div><div class="tok"><span class="ticon ti-usdc">USDC</span>USDC ▾</div></div>
+                    <div class="usd" style="text-align:left;color:var(--ink2)">Min. you’ll receive <b style="color:var(--ink)">451.15 USDC</b></div></div>
+                  <button class="btn">Swap 2.5 SOL</button>
+                </div>
+                <div class="costcard" style="border-left:none;border:1px solid var(--line);border-top:3px solid var(--amber)">
+                  <div class="ttl">True cost of this swap</div>
+                  <div class="crow"><span class="k">Price impact</span><span class="v neg">−$2.58 · −0.57%</span></div>
+                  <div class="why">Your trade is large for this pool, so the price moves against you as it fills.</div>
+                  <div class="crow"><span class="k">Slippage tolerance</span><span class="v">0.5%</span></div>
+                  <div class="seg"><button>0.1%</button><button class="on">0.5%</button><button>1.0%</button><button>Custom</button></div>
+                  <div class="divider"></div>
+                  <div class="routecmp">
+                    <div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)">Routes checked</div>
+                    <div class="crow"><span class="k">Orca Whirlpool</span><span class="v" style="color:var(--green)">Best · −0.57%</span></div>
+                    <div class="crow"><span class="k">Raydium</span><span class="v">−0.85%</span></div>
+                    <div class="crow"><span class="k">Direct pool</span><span class="v">−1.12%</span></div>
+                  </div>
+                  <div class="divider"></div>
+                  <div class="crow"><span class="k">Network fee</span><span class="v">≈ $0.01</span></div>
+                  <div class="crow"><span class="k" style="color:var(--ink);font-weight:700">Total cost</span><span class="v" style="font-size:15px">≈ $2.59</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="note"><b>Desktop uses its width:</b> the true-cost panel becomes persistent, and routes are compared side by side instead of hiding behind a single “best price” claim.</p>
+      </div>
+    </div>
+
+    <div class="decisions">
+      <div class="decision"><h3>Decision — cost is a card, not a footnote</h3><p>Impact, slippage, route and fee live in one “True cost” card with a single total. If a number matters at signing time, it is set at reading size, in words a first-time user understands (“guaranteed or the swap cancels”).</p></div>
+      <div class="decision"><h3>Decision — slippage you can touch</h3><p>The tolerance is a segmented control on the review screen itself, and minimum-received updates with it. Users learn what slippage <i>does</i> by changing it, not by reading a tooltip.</p></div>
+      <div class="decision"><h3>Decision — verification is the default sort</h3><p>The picker opens on verified tokens. Lookalikes are collapsed behind a labelled warning row — visible enough to be honest, demoted enough to be safe.</p></div>
+      <div class="decision"><h3>Decision — nothing is removed</h3><p>Every expert affordance survives: custom slippage, unverified tokens, full routes. The redesign changes defaults and emphasis, not capabilities.</p></div>
+    </div>
+  </section>
+
+  <!-- ================= FEATURE 2 ================= -->
+  <section id="feature2">
+    <div class="sec-head">
+      <div class="kicker">Feature 2 of 2 · Activity</div>
+      <h2>Activity that reads like a bank statement, not a block explorer</h2>
+      <p>Phantom’s activity feed is a list of arrows and truncated hashes. To answer the simplest question — “what did I actually do yesterday, and did it work?” — users copy a signature into an explorer. A failed swap looks identical to a successful one, so people retry transactions that already failed for a reason they never see.</p>
+    </div>
+    <div class="problems">
+      <div class="problem"><div class="num">PROBLEM 1</div><h3>Hashes are the headline</h3><p>Each row leads with an arrow and a truncated signature. The human facts — what was swapped, for what, at what fee — are absent.</p></div>
+      <div class="problem"><div class="num">PROBLEM 2</div><h3>Failure is invisible</h3><p>A swap that failed on slippage renders exactly like a confirmed one. No reason, no reassurance that no funds were lost, no next step.</p></div>
+      <div class="problem"><div class="num">PROBLEM 3</div><h3>No grouping, no story</h3><p>A swap’s approve/route/settle steps and a morning’s related actions scatter as isolated rows. The feed has data, but no narrative.</p></div>
+    </div>
+
+    <div class="boards">
+      <!-- ACTIVITY BEFORE MOBILE -->
+      <div class="board">
+        <div class="cap"><span class="tag tag-b">Before</span><span class="lbl">Activity — mobile, today</span></div>
+        <div class="phone"><div class="scr" id="scr-m-act-before">
+          <div class="statusbar"><span>9:41</span><span>5G ▰▰▰</span></div>
+          <h3 style="font-size:17px">Activity</h3>
+          <div>
+            <div class="act-item"><div class="aic">↓</div><div><div class="tt">Receive</div><div class="ss mono">8f3k…Qw2Z</div></div><div class="rt"><div class="a up">+0.84 SOL</div><div class="ss">2:14 PM</div></div></div>
+            <div class="act-item"><div class="aic">⇄</div><div><div class="tt">Swap</div><div class="ss mono">5xKp…9fTz</div></div><div class="rt"><div class="a">−2.5 SOL</div><div class="ss">1:58 PM</div></div></div>
+            <div class="act-item"><div class="aic">↑</div><div><div class="tt">Send</div><div class="ss mono">3mNv…8sKd</div></div><div class="rt"><div class="a">−0.25 SOL</div><div class="ss">Yesterday</div></div></div>
+            <div class="act-item"><div class="aic">⇄</div><div><div class="tt">Swap</div><div class="ss mono">9qWe…Lm41</div></div><div class="rt"><div class="a">−1.0 SOL</div><div class="ss">Yesterday</div></div></div>
+            <div class="act-item"><div class="aic">↓</div><div><div class="tt">Receive</div><div class="ss mono">7hJd…Pp02</div></div><div class="rt"><div class="a up">+12.4 USDC</div><div class="ss">Yesterday</div></div></div>
+          </div>
+          <p class="note" style="margin-top:auto">One of these swaps <b>failed</b> — the price moved beyond the user’s slippage limit and the SOL never left. Can you tell which? Neither can the user.</p>
+        </div></div>
+      </div>
+
+      <!-- ACTIVITY AFTER MOBILE -->
+      <div class="board">
+        <div class="cap"><span class="tag tag-a">After</span><span class="lbl">Activity — mobile, redesigned</span></div>
+        <div class="phone"><div class="scr" id="scr-m-act-after">
+          <div class="statusbar"><span>9:41</span><span>5G ▰▰▰</span></div>
+          <h3 style="font-size:17px">Activity</h3>
+          <div class="daygroup">Today</div>
+          <div class="card" style="padding:6px 16px">
+            <div class="act-item"><div class="aic">⇄</div><div><div class="tt">Swapped 2.5 SOL → 453.42 USDC</div><div class="ss">via Orca · fee ≈ $0.01</div></div><div class="rt"><span class="chip ok">Confirmed</span><div class="ss" style="margin-top:5px">1:58 PM</div></div></div>
+            <div class="act-item"><div class="aic">↓</div><div><div class="tt">Received 0.84 SOL</div><div class="ss">from 8f3k…Qw2Z</div></div><div class="rt"><span class="chip ok">Confirmed</span><div class="ss" style="margin-top:5px">2:14 PM</div></div></div>
+          </div>
+          <div class="failcard">
+            <h4>⚠ Swap didn’t go through</h4>
+            <p>The price moved more than your 0.5% slippage limit. <b>No funds were taken</b> — your 1.0 SOL is still in your wallet.</p>
+            <button class="btn ghost" style="height:42px;margin-top:12px;font-size:13.5px">Try again with updated price</button>
+          </div>
+          <div class="daygroup">Yesterday</div>
+          <div class="card" style="padding:6px 16px">
+            <div class="act-item"><div class="aic">↑</div><div><div class="tt">Sent 0.25 SOL</div><div class="ss">to 3mNv…8sKd</div></div><div class="rt"><span class="chip ok">Confirmed</span></div></div>
+            <div class="act-item"><div class="aic">↓</div><div><div class="tt">Received 12.4 USDC</div><div class="ss">from 7hJd…Pp02</div></div><div class="rt"><span class="chip ok">Confirmed</span></div></div>
+          </div>
+          <p class="note" style="margin-top:auto">Signatures move into a details view (tap any row). The feed itself answers: <b>what happened, did it work, what did it cost.</b></p>
+        </div></div>
+      </div>
+    </div>
+
+    <!-- ACTIVITY DESKTOP PAIR -->
+    <div class="boards" style="grid-template-columns:1fr">
+      <div class="board">
+        <div class="cap"><span class="tag tag-b">Before</span><span class="lbl">Activity — desktop, today</span></div>
+        <div class="browser" id="scr-d-act-before">
+          <div class="chrome"><span class="dot" style="background:#FF5F57"></span><span class="dot" style="background:#FEBC2E"></span><span class="dot" style="background:#28C840"></span><div class="urlbar">phantom.app/activity</div></div>
+          <div class="dapp">
+            <div class="side"><div class="logo"><span class="ghostlogo"></span>Phantom</div>
+              <div class="navi">⌂ Home</div><div class="navi">⇄ Swap</div><div class="navi on">↺ Activity</div><div class="navi">⚙ Settings</div>
+            </div>
+            <div class="main">
+              <table class="raw">
+                <tr><th>Signature</th><th>Type</th><th>Amount</th><th>Time</th></tr>
+                <tr><td class="mono">8f3k…Qw2Z</td><td>Receive</td><td>+0.84 SOL</td><td>2:14 PM</td></tr>
+                <tr><td class="mono">5xKp…9fTz</td><td>Swap</td><td>−2.5 SOL</td><td>1:58 PM</td></tr>
+                <tr><td class="mono">3mNv…8sKd</td><td>Send</td><td>−0.25 SOL</td><td>Yesterday</td></tr>
+                <tr><td class="mono">9qWe…Lm41</td><td>Swap</td><td>−1.0 SOL</td><td>Yesterday</td></tr>
+                <tr><td class="mono">7hJd…Pp02</td><td>Receive</td><td>+12.4 USDC</td><td>Yesterday</td></tr>
+              </table>
+              <p class="note">A data table for machines: no counterparty, no result, no fee, no status. The failed swap (row 4) is indistinguishable from the confirmed one (row 2).</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="board">
+        <div class="cap"><span class="tag tag-a">After</span><span class="lbl">Activity — desktop, redesigned</span></div>
+        <div class="browser" id="scr-d-act-after">
+          <div class="chrome"><span class="dot" style="background:#FF5F57"></span><span class="dot" style="background:#FEBC2E"></span><span class="dot" style="background:#28C840"></span><div class="urlbar">phantom.app/activity</div></div>
+          <div class="dapp">
+            <div class="side"><div class="logo"><span class="ghostlogo"></span>Phantom</div>
+              <div class="navi">⌂ Home</div><div class="navi">⇄ Swap</div><div class="navi on">↺ Activity</div><div class="navi">⚙ Settings</div>
+            </div>
+            <div class="main">
+              <div class="twocol" style="grid-template-columns:1fr 300px">
+                <div>
+                  <div class="daygroup">Today</div>
+                  <div class="card" style="padding:6px 16px;margin-top:8px">
+                    <div class="act-item"><div class="aic">⇄</div><div><div class="tt">Swapped 2.5 SOL → 453.42 USDC</div><div class="ss">via Orca · fee ≈ $0.01</div></div><div class="rt"><span class="chip ok">Confirmed</span></div></div>
+                    <div class="act-item"><div class="aic">↓</div><div><div class="tt">Received 0.84 SOL</div><div class="ss">from 8f3k…Qw2Z</div></div><div class="rt"><span class="chip ok">Confirmed</span></div></div>
+                  </div>
+                  <div class="failcard" style="margin-top:14px">
+                    <h4>⚠ Swap didn’t go through</h4>
+                    <p>The price moved more than your 0.5% slippage limit. No funds were taken.</p>
+                  </div>
+                  <div class="daygroup" style="margin-top:18px">Yesterday</div>
+                  <div class="card" style="padding:6px 16px;margin-top:8px">
+                    <div class="act-item"><div class="aic">↑</div><div><div class="tt">Sent 0.25 SOL</div><div class="ss">to 3mNv…8sKd</div></div><div class="rt"><span class="chip ok">Confirmed</span></div></div>
+                    <div class="act-item"><div class="aic">↓</div><div><div class="tt">Received 12.4 USDC</div><div class="ss">from 7hJd…Pp02</div></div><div class="rt"><span class="chip ok">Confirmed</span></div></div>
+                  </div>
+                </div>
+                <div class="card" style="padding:18px">
+                  <div class="lab">Selected transaction</div>
+                  <h3 style="margin-top:8px;font-size:15.5px">Swapped 2.5 SOL → 453.42 USDC</h3>
+                  <div class="crow"><span class="k">Route</span><span class="v">Orca Whirlpool</span></div>
+                  <div class="crow"><span class="k">Price impact</span><span class="v">−0.57%</span></div>
+                  <div class="crow"><span class="k">Network fee</span><span class="v">≈ $0.01</span></div>
+                  <div class="crow"><span class="k">Status</span><span class="v" style="color:var(--green)">Confirmed · 1:58 PM</span></div>
+                  <div class="divider"></div>
+                  <div class="lab">Signature</div>
+                  <p class="mono" style="font-size:11px;color:var(--ink2);word-break:break-all;margin-top:6px">5xKp9fTz…(full signature in explorer)</p>
+                  <button class="btn ghost" style="height:40px;margin-top:14px;font-size:13px">Open in explorer ↗</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="note"><b>Desktop earns a detail pane:</b> selecting a row shows the plain-language summary, the economics, and the full on-chain reference — the explorer is one click away, not the price of understanding.</p>
+      </div>
+    </div>
+
+    <div class="decisions">
+      <div class="decision"><h3>Decision — sentences, not signatures</h3><p>Every row is a sentence a person would say: “Swapped 2.5 SOL → 453.42 USDC”. Counterparty, venue and fee ride along as a quiet subline. The signature still exists — one tap deeper.</p></div>
+      <div class="decision"><h3>Decision — failure is a first-class state</h3><p>Failed transactions get an explanation card in the feed itself: what happened, that no funds were taken, and the single sensible next action. Support tickets and blind retries both start here.</p></div>
+      <div class="decision"><h3>Decision — group by day and session</h3><p>Rows group under Today / Yesterday, and related actions cluster. Scanning a week of activity becomes reading a short diary, not paging a database.</p></div>
+      <div class="decision"><h3>Decision — status is always visible</h3><p>Confirmed / Failed is a chip on every row, never a detail to excavate. Colour is backed by text, so the state survives colour-blindness and screenshots.</p></div>
+    </div>
+  </section>
+
+  <!-- ================= INTERACTIVE PROTOTYPE ================= -->
+  <section id="prototype">
+    <div class="sec-head">
+      <div class="kicker">Live prototype · try it</div>
+      <h2>The redesigned swap, working</h2>
+      <p>This is the after-state swap screen as a live prototype. Change the slippage tolerance and watch “minimum received” and the explanation update — the small interaction that teaches users what slippage actually does. <span class="mono" style="font-size:13px">(Illustrative figures.)</span></p>
+    </div>
+    <div class="boards" style="grid-template-columns:1fr 1fr">
+      <div class="board">
+        <div class="cap"><span class="tag tag-n">Interactive</span><span class="lbl">Swap — redesigned</span></div>
+        <div class="phone"><div class="scr">
+          <div class="statusbar"><span>9:41</span><span>5G ▰▰▰</span></div>
+          <div class="apphead"><div class="avatar"></div><div><div class="wname">Wallet 1</div><div style="font-size:11px;color:var(--ink3)">7xKZ…eR9p</div></div><div class="sp"></div><div class="ic">⌕</div><div class="ic">▣</div></div>
+          <div class="card">
+            <div class="lab">You pay</div>
+            <div class="amtrow"><div class="amt"><input id="p-amt" type="number" value="2.5" step="0.1" min="0" style="width:110px;background:transparent;border:none;color:var(--ink);font-size:26px;font-weight:750;outline:none"> <small>SOL</small></div><div class="tok"><span class="ticon ti-sol">SOL</span>SOL ▾</div></div>
+            <div class="usd" id="p-usd">≈ $456.00 · Balance 8.42 SOL</div>
+          </div>
+          <div class="flip">↓</div>
+          <div class="card">
+            <div class="lab">You receive</div>
+            <div class="amtrow"><div class="amt" id="p-recv">453.42 <small>USDC</small></div><div class="tok"><span class="ticon ti-usdc">USDC</span>USDC ▾</div></div>
+            <div class="usd" style="text-align:left;color:var(--ink2)">Min. you’ll receive <b style="color:var(--ink)" id="p-min">451.15 USDC</b> — guaranteed or the swap cancels</div>
+          </div>
+          <div class="costcard">
+            <div class="ttl">True cost of this swap</div>
+            <div class="crow"><span class="k">Price impact</span><span class="v neg" id="p-impact">−$2.58 · −0.57%</span></div>
+            <div class="why" id="p-impact-why">Your trade is large for this pool, so the price moves against you as it fills.</div>
+            <div class="crow"><span class="k">Slippage tolerance</span><span class="v" id="p-slip-val">0.5%</span></div>
+            <div class="seg" id="p-seg"><button data-s="0.1">0.1%</button><button data-s="0.5" class="on">0.5%</button><button data-s="1.0">1.0%</button><button data-s="3.0">3.0%</button></div>
+            <div class="why" id="p-slip-why">Balanced: protects you from bad fills while letting normal trades through.</div>
+            <div class="crow"><span class="k">Route</span><span class="v">Orca · best of 3 checked</span></div>
+            <div class="crow"><span class="k">Network fee</span><span class="v">≈ $0.01</span></div>
+            <div class="divider"></div>
+            <div class="crow"><span class="k" style="color:var(--ink);font-weight:700">Total cost</span><span class="v" style="font-size:15px" id="p-total">≈ $2.59</span></div>
+          </div>
+          <button class="btn" id="p-cta">Swap 2.5 SOL</button>
+          <div class="fineprint" id="p-done" style="display:none;color:var(--green);font-size:12px">✓ Simulated swap confirmed — in the redesigned Activity this appears as “Swapped 2.5 SOL → 453.42 USDC”.</div>
+        </div></div>
+      </div>
+      <div class="board" style="align-self:start">
+        <div class="cap"><span class="tag tag-n">Why it works</span><span class="lbl">The teaching moment</span></div>
+        <p style="color:var(--ink2);font-size:15px">Most users have never changed a slippage setting, because nothing in the current UI connects the setting to a consequence. Here the connection is mechanical and immediate:</p>
+        <ul style="margin:14px 0 0 20px;color:var(--ink2);font-size:15px">
+          <li style="margin-top:8px"><b style="color:var(--ink)">0.1%</b> — minimum received rises; the note warns the swap may fail if the price moves.</li>
+          <li style="margin-top:8px"><b style="color:var(--ink)">0.5%</b> — the balanced default for liquid pairs.</li>
+          <li style="margin-top:8px"><b style="color:var(--ink)">1–3%</b> — minimum received drops visibly, and the note names the risk (worse fills, MEV) instead of silently accepting it.</li>
+        </ul>
+        <p style="color:var(--ink2);font-size:15px;margin-top:16px">Editing the SOL amount rescales the whole card, including price impact — size is what creates impact, and the interface finally says so.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= DESIGN SYSTEM ================= -->
+  <section id="system">
+    <div class="sec-head">
+      <div class="kicker">Design system</div>
+      <h2>Evolved, not replaced</h2>
+      <p>The redesign keeps Phantom’s identity — near-black surfaces, the lavender accent, the ghost’s rounded geometry — and adds what the current system lacks: semantic colour for money states and a type scale that gives cost information reading size. Nothing decorative was added; every new element carries information.</p>
+    </div>
+    <div class="tokens">
+      <div class="swatch"><i style="background:#101016;border:1px solid var(--line)"></i>Surface · #101016</div>
+      <div class="swatch"><i style="background:#1B1B25"></i>Card · #1B1B25</div>
+      <div class="swatch"><i style="background:#AB9FF2"></i>Accent · #AB9FF2</div>
+      <div class="swatch"><i style="background:#3ECF8E"></i>Positive / confirmed · #3ECF8E</div>
+      <div class="swatch"><i style="background:#F5B84C"></i>Cost / caution · #F5B84C</div>
+      <div class="swatch"><i style="background:#FF8585"></i>Negative · #FF8585</div>
+      <div class="swatch"><i style="background:#EDEDF2"></i>Text · #EDEDF2</div>
+      <div class="swatch"><i style="background:#9B9BAE"></i>Secondary · #9B9BAE</div>
+    </div>
+    <div class="decisions" style="grid-template-columns:repeat(3,1fr)">
+      <div class="decision"><h3>Type</h3><p>Amounts at 26px/750 are the loudest element on any money screen. Labels drop to 11px uppercase grey. Explanations sit at 12–13px secondary — readable, never competing with the number they explain.</p></div>
+      <div class="decision"><h3>Radius &amp; spacing</h3><p>One radius scale (8 / 12 / 16) inside the product, 4px spacing grid throughout. Cards separate by surface shift, not borders — the single amber edge on the cost card is the only loud border, and it means “this costs you”.</p></div>
+      <div class="decision"><h3>Colour discipline</h3><p>Amber is reserved for cost and caution, green for confirmed and received, red for loss and failure. Colour always travels with text, so meaning survives greyscale and colour-blindness.</p></div>
+    </div>
+  </section>
+
+  <!-- ================= WRITE-UP ================= -->
+  <section id="writeup">
+    <div class="sec-head">
+      <div class="kicker">Write-up</div>
+      <h2>The problems, and what I changed</h2>
+    </div>
+    <div class="writeup" style="margin-top:26px">
+      <p><b>The app I redesigned:</b> Phantom — the most widely used Solana wallet, and the first crypto product most newcomers ever touch. I redesigned two flows: <b>Swap</b> (review + token picker) and <b>Activity</b>, on mobile and desktop.</p>
+      <p><b>Problem 1 — a swap’s real cost is invisible at the moment of decision.</b> Phantom’s review screen shows the amounts and a rate. Price impact — often the largest cost of a trade — appears nowhere. Slippage tolerance, the setting that defines the worst fill a user accepts, is rendered in 10px grey type beneath the call to action, and “minimum received” is never stated. The predictable result: users sign swaps they would have resized or abandoned, and learn about the cost from their balance.</p>
+      <p><b>What I changed:</b> a single <b>True Cost</b> card on the review screen — price impact in dollars and percent with a one-line explanation, slippage as a tappable segmented control, the winning route named, the network fee, and one total. “Minimum received” is promoted into the receive card as a guarantee (“guaranteed or the swap cancels”). On desktop the card becomes a persistent side panel and the routes checked are compared openly, so “best price” is a claim the user can verify.</p>
+      <p><b>Problem 2 — the token picker can’t tell real from fake.</b> A lookalike token with a copied name and symbol renders identically to the genuine asset; the only tell is a truncated mint address in small type. This is a safety failure presented as a list.</p>
+      <p><b>What I changed:</b> the picker defaults to registry-verified tokens with a visible verified state and issuer context (“by Circle · deep liquidity”). Unverified lookalikes collapse into a single labelled warning row — never silently deleted, because experts legitimately trade unverified tokens, but never again visually identical to the real thing.</p>
+      <p><b>Problem 3 — activity is written for explorers, not people.</b> Rows lead with truncated signatures; there is no status, no counterparty story, no fee. A failed swap is indistinguishable from a confirmed one, which produces blind retries and support tickets.</p>
+      <p><b>What I changed:</b> every row becomes a sentence (“Swapped 2.5 SOL → 453.42 USDC · via Orca · fee ≈ $0.01”) with a status chip; rows group by day; failures get an explanation card in the feed itself — what happened, that no funds were taken, and the next action. Signatures move to a detail view (a side pane on desktop) with a one-click path to the explorer.</p>
+      <p><b>Principles behind the decisions:</b></p>
+      <ul>
+        <li><b>State the cost before the signature.</b> Anything that changes what a user would decide belongs before the button, at reading size.</li>
+        <li><b>Safe defaults, open doors.</b> Verified-first and balanced slippage protect newcomers; every expert path (custom slippage, unverified tokens, raw signatures) remains one tap away.</li>
+        <li><b>Explain at the point of action.</b> Each number that could confuse gets one plain sentence, where it appears — not in a help centre.</li>
+      </ul>
+      <p><b>Honest limits:</b> this is an unvalidated design concept. Figures are illustrative, screens are a faithful reconstruction of current Phantom patterns rather than traced screenshots, and the next step would be moderated usability tests of the review screen with first-time swappers — especially whether the True Cost card changes trade size or abandonment. I’d rather ship that test than claim results I don’t have.</p>
+    </div>
+  </section>
+
+  <div class="foot">
+    Concept redesign created for the Superteam Earn open design bounty “Redesign Your Favourite App on Solana” (Superteam India). Not affiliated with or endorsed by Phantom. All product names and the Phantom identity are used nominatively to critique and redesign a public interface. Figures are illustrative; no user research is claimed.
+  </div>
+</div>
+
+<script>
+(function(){
+  var RATE = 182.40;               // SOL price USD (illustrative)
+  var IMPACT = 0.005658;          // price impact at 2.5 SOL (scales with size)
+  var recv0 = 453.42;              // USDC received at 2.5 SOL after impact
+  var amtEl = document.getElementById('p-amt');
+  var seg = document.getElementById('p-seg');
+  var slip = 0.5;
+  function fmt(n, d){ return n.toLocaleString('en-US', {minimumFractionDigits:d, maximumFractionDigits:d}); }
+  function slipWhy(s){
+    if (s <= 0.1) return 'Tight protection: you keep almost the full quoted amount, but the swap may fail if the price moves even slightly.';
+    if (s <= 0.5) return 'Balanced: protects you from bad fills while letting normal trades through.';
+    if (s <= 1.0) return 'Loose: fewer failed swaps on fast-moving pairs, but you may receive noticeably less than quoted.';
+    return 'Very loose: high risk of a poor fill and MEV. Only for thin, volatile tokens you fully understand.';
+  }
+  function render(){
+    var amt = Math.max(0, parseFloat(amtEl.value) || 0);
+    // impact scales mildly with size: 0.6% at 2.5 SOL
+    var impact = amt === 0 ? 0 : Math.min(0.06, IMPACT * Math.pow(amt / 2.5, 0.7));
+    var gross = amt * RATE;
+    var recv = gross * (1 - impact);
+    var min = recv * (1 - slip / 100);
+    var impactUSD = gross * impact;
+    document.getElementById('p-usd').textContent = '≈ $' + fmt(gross, 2) + ' · Balance 8.42 SOL';
+    document.getElementById('p-recv').innerHTML = fmt(recv, 2) + ' <small>USDC</small>';
+    document.getElementById('p-min').textContent = fmt(min, 2) + ' USDC';
+    document.getElementById('p-impact').textContent = '−$' + fmt(impactUSD, 2) + ' · −' + fmt(impact * 100, 2) + '%';
+    document.getElementById('p-impact-why').textContent = amt > 5
+      ? 'This trade is large relative to the pool — the price moves against you as it fills. Splitting it would reduce impact.'
+      : 'Your trade is large for this pool, so the price moves against you as it fills.';
+    document.getElementById('p-slip-val').textContent = fmt(slip, 1).replace('.0','') + '%';
+    document.getElementById('p-slip-why').textContent = slipWhy(slip);
+    document.getElementById('p-total').textContent = '≈ $' + fmt(impactUSD + 0.01, 2);
+    document.getElementById('p-cta').textContent = 'Swap ' + fmt(amt, amt % 1 ? 2 : 0) + ' SOL';
+  }
+  seg.addEventListener('click', function(e){
+    var b = e.target.closest('button'); if (!b) return;
+    seg.querySelectorAll('button').forEach(function(x){ x.classList.remove('on'); });
+    b.classList.add('on'); slip = parseFloat(b.dataset.s); render();
+  });
+  amtEl.addEventListener('input', render);
+  document.getElementById('p-cta').addEventListener('click', function(){
+    document.getElementById('p-done').style.display = 'block';
+  });
+  render();
+})();
+</script>
+</body>
+</html>
